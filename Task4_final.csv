@@ -1,0 +1,11 @@
+city_name,total_new_passengers,highest_rank,category
+Jaipur,45856,1,"Top 3"
+Kochi,26416,2,"Top 3"
+Chandigarh,18908,3,"Top 3"
+Lucknow,16260,4,Other
+Indore,14863,5,Other
+Visakhapatnam,12747,6,Other
+Mysore,11681,7,Other
+Surat,11626,8,"Bottom 3"
+Vadodara,10127,9,"Bottom 3"
+Coimbatore,8514,10,"Bottom 3"
