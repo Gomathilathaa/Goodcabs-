@@ -76,7 +76,7 @@ Lowest average fare and distance: Surat (₹117.27, 11.00 km).
 
 Contains all SQL scripts for extracting and analyzing data.
 
-View SQL Scripts
+[View SQL Scripts](https://github.com/Gomathilathaa/Goodcabs-/blob/main/business_requests_final.sql)
 
 **Power BI Dashboard:**
 
@@ -88,7 +88,8 @@ Interactive visualizations showcasing trip volumes, revenue, retention rates, an
 
 Summary of insights, recommendations, and next steps.
 
-Download Presentation
+[Download Presentation](https://www.canva.com/design/DAGY-v9JceM/MlEdP4dqVWhdJMgWbEC_Yw/view?utm_content=DAGY-v9JceM&utm_campaign=designshare&utm_medium=link&utm_source=recording_view)
+
 
 ## Recommendations
 **Retention Programs:**
