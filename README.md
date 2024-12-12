@@ -112,6 +112,6 @@ Collaborate with tourism boards in cities like Kochi and Jaipur to drive demand 
 Tailor campaigns for weekday and weekend demand patterns.
 
 
-I’d love to hear your feedback and suggestions to improve this project! Feel free to reach out or connect with me on LinkedIn.
+I’d love to hear your feedback and suggestions to improve this project! Feel free to reach out or connect with me on [LinkedIn](https://www.linkedin.com/in/gomathi-latha-03457a243/).
 
 
