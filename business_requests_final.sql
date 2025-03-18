@@ -4,7 +4,7 @@ Select city_name,
 	count(trip_id) as total_trips, 
 	round(sum(t.fare_amount)/sum(t.distance_travelled_km),2) as avg_fare_per_km,
     avg(t.fare_amount) as avg_fare_per_trip,
-    round((count(t.trip_id) / (select count(*) from fact_trips) * 100), 2) as pct_contribution_to_totaltrips
+    CONCAT(round((count(t.trip_id) / (select count(*) from fact_trips) * 100), 2),'%') as pct_contribution_to_totaltrips
 from fact_trips t
 join dim_city c
 on c.city_id = t.city_id
@@ -41,7 +41,7 @@ SELECT
         WHEN actual_trips >= target_trips THEN 'Above Target'
         WHEN actual_trips < target_trips THEN 'Below Target'
     END AS performance_target,
-    ROUND((actual_trips / target_trips) * 100, 2) AS pct_difference  -- Express as a percentage
+    CONCAT(ROUND(((actual_trips - target_trips) / target_trips) * 100, 2), '%') AS pct_difference  -- Express as a percentage
 FROM 
     cte;
 
@@ -105,41 +105,19 @@ ORDER BY
     highest_rank;
     
 #Identify month with highest revenue for each city
-WITH monthly_revenue AS (
-    SELECT 
-        c.city_name,
-        d.month_name,
-        SUM(t.fare_amount) AS total_revenue,
-        round((max(t.fare_amount)/sum(t.fare_amount))*100,2) as pct_contribution
-    FROM 
-        fact_trips t
-    JOIN 
-        dim_city c ON c.city_id = t.city_id
-    JOIN 
-        dim_date d ON d.date = t.date
-    GROUP BY 
-        c.city_name, d.month_name
-),
-highest_revenue_month AS (
-    SELECT 
-        city_name,
-        month_name,
-        total_revenue,
-        RANK() OVER (PARTITION BY city_name ORDER BY total_revenue DESC) AS revenue_rank,pct_contribution
-    FROM 
-        monthly_revenue
-)
-SELECT 
-    city_name,
-    month_name AS highest_revenue_month,  
-    total_revenue AS revenue,
-    pct_contribution as pct
-FROM 
-    highest_revenue_month
-WHERE 
-    revenue_rank = 1
-ORDER BY 
-    city_name;
+WITH CTE1 AS (select monthname(date) as Month, city_id, sum(fare_amount) as Total_Rev FROM fact_trips
+group by city_id, Month),
+CTE2 AS(
+select city_id, Month, Total_Rev, max(Total_Rev) OVER(partition by city_id) as Highest_Rev FROM CTE1
+group by city_id, Month),
+CTE3 AS(
+SELECT city_name, Month, Highest_rev, Total_Rev,
+CONCAT(ROUND((Highest_Rev/sum(Total_Rev) over (Partition by CTE2.city_id))*100,2),'%') AS Contribution_perct
+FROM CTE2
+JOIN dim_city on CTE2.city_id=dim_city.city_id)
+SELECT City_name, Month as Highest_Revenue_Month, Highest_rev as Revenue, Contribution_perct
+FROM CTE3
+WHERE Highest_rev=Total_rev;
 
 #Repeat Passenger Rate Analysis:
 SELECT  
@@ -148,10 +126,7 @@ SELECT
     ps.total_passengers,
     ps.repeat_passengers,
     -- Monthly Repeat Passenger Rate (per city per month)
-    CASE 
-        WHEN ps.total_passengers > 0 THEN (ps.repeat_passengers / ps.total_passengers) * 100
-        ELSE 0
-    END AS monthly_repeat_passenger_rate,
+	concat(round((ps.repeat_passengers / ps.total_passengers) * 100,2),'%') AS monthly_repeat_passenger_rate,
     -- City-wide Repeat Passenger Rate (aggregated across all months for each city)
     city_repeat_rate.city_repeat_passenger_rate
 FROM fact_passenger_summary ps
@@ -162,15 +137,10 @@ JOIN (
         c.city_name,
         SUM(ps.repeat_passengers) AS total_repeat_passengers,
         SUM(ps.total_passengers) AS total_passengers_across_months,
-        CASE 
-            WHEN SUM(ps.total_passengers) > 0 THEN (SUM(ps.repeat_passengers) / SUM(ps.total_passengers)) * 100
-            ELSE 0
-        END AS city_repeat_passenger_rate
+		concat(round((SUM(ps.repeat_passengers) / SUM(ps.total_passengers)) * 100,2),'%') AS city_repeat_passenger_rate
     FROM fact_passenger_summary ps
     JOIN dim_city c ON c.city_id = ps.city_id
     GROUP BY c.city_name
 ) city_repeat_rate 
 ON city_repeat_rate.city_name = c.city_name
 ORDER BY c.city_name, ps.month;
-
-
